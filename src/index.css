@@ -306,8 +306,33 @@ button {
   width: 100%;
 }
 
+.empty-feed {
+  padding: 32px 20px;
+  border: 1px dashed #d8d4cd;
+  border-radius: 14px;
+  background: white;
+  color: #777;
+  text-align: center;
+}
+
 .photo-card h3 {
   font-size: 15px;
+}
+
+.uploaded-post-details {
+  min-width: 0;
+}
+
+.uploaded-post-details .post-location {
+  margin-top: 4px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.post-error {
+  color: #9c2f25;
+  font-size: 13px;
+  line-height: 1.4;
 }
 
 .photo-placeholder {
@@ -327,6 +352,57 @@ button {
   min-height: 400px;
   border-radius: 14px;
   z-index: 0;
+}
+
+.moment-marker-icon {
+  border: 0;
+  background: transparent;
+}
+
+.moment-marker-photo {
+  display: flex;
+  width: 54px;
+  height: 54px;
+  align-items: center;
+  justify-content: center;
+  object-fit: cover;
+  border: 3px solid white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.moment-marker-placeholder {
+  color: #333;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.map-locate-control {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1000;
+  display: flex;
+  max-width: min(320px, calc(100% - 24px));
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.map-locate-control button {
+  background: white;
+  color: #292929;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+}
+
+.map-locate-control span {
+  padding: 7px 9px;
+  border-radius: 6px;
+  background: white;
+  color: #9c2f25;
+  font-size: 12px;
+  line-height: 1.4;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25);
 }
 
 .map-moment {
@@ -364,11 +440,205 @@ button {
   font-size: 24px;
 }
 
+.friends-page .sidebar > p {
+  color: #777;
+}
+
+.connection-section {
+  padding-top: 20px;
+  margin-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.connection-section h2 {
+  margin-bottom: 12px;
+  font-size: 17px;
+}
+
+.connection-section > p {
+  color: #777;
+  font-size: 14px;
+}
+
+.request-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0efec;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.request-row > div {
+  display: flex;
+  flex-shrink: 0;
+  gap: 6px;
+}
+
+.request-row button {
+  padding: 8px 10px;
+  background: #283b2d;
+  color: white;
+  font-size: 12px;
+}
+
+.request-row .secondary-button {
+  background: #eee;
+  color: #333;
+}
+
+.add-friend button:disabled,
+.request-row button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
 .friends-list {
   margin-top: 22px;
 }
 
+.auth-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.auth-card {
+  width: min(100%, 440px);
+  padding: 34px;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 14px 40px rgba(41, 41, 41, 0.08);
+}
+
+.auth-card .logo {
+  display: inline-block;
+  margin-bottom: 24px;
+  color: #292929;
+}
+
+.auth-card h1 {
+  margin-bottom: 8px;
+  font-size: 25px;
+}
+
+.auth-card > p {
+  color: #777;
+  line-height: 1.5;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.auth-form label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.auth-form input {
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.auth-form .share-button {
+  margin-top: 8px;
+}
+
+.auth-form .share-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.text-button {
+  margin-top: 16px;
+  padding: 8px 0;
+  background: transparent;
+  color: #283b2d;
+}
+
+.form-message {
+  color: #44634a;
+  font-size: 13px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.form-error,
+.page-error {
+  color: #9c2f25;
+}
+
+.page-error {
+  max-width: 1150px;
+  margin: 16px auto 0;
+  padding: 0 25px;
+  font-size: 14px;
+}
+
+.upload-modal {
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+}
+
+.location-picker-label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: #292929;
+  font-size: 14px;
+}
+
+.location-picker-label span {
+  color: #777;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.location-picker {
+  height: 220px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+.location-picker-map {
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.location-picker-map .map-locate-control {
+  top: 8px;
+  right: 8px;
+}
+
+.location-picker-map .map-locate-control button {
+  padding: 8px 10px;
+  font-size: 12px;
+}
+
+.upload-modal .share-button:disabled {
+  background: #999;
+  cursor: not-allowed;
+}
+
 @media (max-width: 750px) {
+  .auth-card {
+    padding: 24px;
+  }
+
   .page-container {
     margin: 28px auto;
     padding: 0 16px;
@@ -386,5 +656,10 @@ button {
 
   .friends-page .sidebar {
     padding: 20px;
+  }
+
+  .request-row {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
