@@ -27,7 +27,7 @@ set search_path = ''
 as $$
 declare
   signed_in_user_id uuid;
-  photo_day date;
+  v_photo_day date;
   new_moment_id uuid;
 begin
   select id
@@ -49,10 +49,10 @@ begin
     raise exception 'Choose a location for your photo.';
   end if;
 
-  photo_day := (now() at time zone 'UTC')::date;
+  v_photo_day := (now() at time zone 'UTC')::date;
 
   insert into public.daily_moment_claims (user_id, photo_day)
-  values (signed_in_user_id, photo_day)
+  values (signed_in_user_id, v_photo_day)
   on conflict (user_id, photo_day) do nothing;
 
   if not found then
