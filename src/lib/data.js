@@ -2,6 +2,14 @@ import { supabase } from "./supabase";
 
 const MOMENTS_BUCKET = "moments";
 
+async function fetchConnectedProfiles() {
+  const { data: profiles, error } = await supabase.rpc("get_connected_profiles");
+  if (error) throw error;
+  return new Map(
+    profiles.map((profile) => [profile.profile_id, profile.email])
+  );
+}
+
 function formatTime(createdAt) {
   const minutes = Math.floor((Date.now() - new Date(createdAt).getTime()) / 60000);
   if (minutes < 1) return "Just now";
@@ -21,13 +29,7 @@ export async function fetchMoments(userId) {
 
   if (moments.length === 0) return [];
 
-  const userIds = [...new Set(moments.map((moment) => moment.user_id))];
-  const { data: profiles, error: profilesError } = await supabase
-    .from("profiles")
-    .select("id, email")
-    .in("id", userIds);
-  if (profilesError) throw profilesError;
-  const emails = new Map(profiles.map((profile) => [profile.id, profile.email]));
+  const emails = await fetchConnectedProfiles();
 
   return Promise.all(
     moments.map(async (moment) => {
@@ -42,7 +44,9 @@ export async function fetchMoments(userId) {
         caption: moment.caption,
         location: moment.location,
         coords: [moment.latitude, moment.longitude],
-        name: moment.user_id === userId ? "You" : emails.get(moment.user_id) || "Friend",
+        name: moment.user_id === userId
+          ? "You"
+          : emails.get(moment.user_id) || "Friend",
         time: formatTime(moment.created_at),
       };
     })
@@ -61,19 +65,7 @@ export async function fetchFriendConnections(userId) {
     return { friends: [], incoming: [], outgoing: [] };
   }
 
-  const otherUserIds = [
-    ...new Set(
-      requests.map((request) =>
-        request.sender_id === userId ? request.recipient_id : request.sender_id
-      )
-    ),
-  ];
-  const { data: profiles, error: profilesError } = await supabase
-    .from("profiles")
-    .select("id, email")
-    .in("id", otherUserIds);
-  if (profilesError) throw profilesError;
-  const emails = new Map(profiles.map((profile) => [profile.id, profile.email]));
+  const emails = await fetchConnectedProfiles();
 
   const friends = [];
   const incoming = [];
