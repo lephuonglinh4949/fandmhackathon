@@ -182,3 +182,93 @@
     border-right-color: var(--border);
   }
 }
+/* Dark backdrop covering the whole screen */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 16px;
+}
+
+/* White centered popup box */
+.upload-modal {
+  background: #ffffff;
+  color: #1a1a1a;
+  width: 100%;
+  max-width: 440px;
+  padding: 28px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Top-right close 'X' button */
+.close-button {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: #f2f2f2;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-button:hover {
+  background: #e2e2e2;
+}
+
+/* Form layout inside the modal */
+.upload-modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.upload-modal label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: -6px;
+}
+
+.upload-modal input[type="text"],
+.upload-modal input[type="file"],
+.upload-modal textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.upload-modal textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* Make sure uploaded images fit nicely inside feed cards */
+.posted-image {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}

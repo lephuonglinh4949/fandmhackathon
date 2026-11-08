@@ -1,5 +1,14 @@
 
 import { useState } from "react";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+} from "react-leaflet";
+
+import "leaflet/dist/leaflet.css";
+import "./App.css";
 
 function App() {
   // Upload modal
@@ -15,8 +24,11 @@ function App() {
     { id: 3, name: "Sam Rivera" },
   ]);
 
-  // Add a new post
-  function handlePost(event) {
+  // Map center: between Lancaster and NYC
+  const centerPosition = [40.4, -75.2];
+
+  // Handle photo submission
+  async function handlePost(event) {
     event.preventDefault();
 
     const form = event.currentTarget;
@@ -31,16 +43,46 @@ function App() {
       return;
     }
 
+    // Look up location coordinates
+    let coords = null;
+
+    if (location && location.trim() !== "") {
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`
+        );
+
+        if (!response.ok) {
+          throw new Error("Location search failed");
+        }
+
+        const data = await response.json();
+
+        if (Array.isArray(data) && data.length > 0) {
+          coords = [
+            parseFloat(data[0].lat),
+            parseFloat(data[0].lon),
+          ];
+        }
+      } catch (error) {
+        console.error("Could not find location:", error);
+      }
+    }
+
     const newPost = {
       id: Date.now(),
       image: URL.createObjectURL(photo),
       caption: caption,
       location: location,
+      coords: coords,
       name: "You",
       time: "Just now",
     };
 
-    setPosts((currentPosts) => [newPost, ...currentPosts]);
+    setPosts((currentPosts) => [
+      newPost,
+      ...currentPosts,
+    ]);
 
     form.reset();
     setIsUploadOpen(false);
@@ -52,12 +94,14 @@ function App() {
 
     const form = event.currentTarget;
     const formData = new FormData(form);
+
     const name = formData.get("friendName").trim();
 
     if (name === "") return;
 
     const alreadyExists = friends.some(
-      (friend) => friend.name.toLowerCase() === name.toLowerCase()
+      (friend) =>
+        friend.name.toLowerCase() === name.toLowerCase()
     );
 
     if (alreadyExists) {
@@ -82,8 +126,8 @@ function App() {
     <div className="website">
 
       {/* Navigation */}
-      <nav className="navbar">
-        <div className="logo">dayframe.</div>
+      <header className="navbar">
+        <h1 className="logo">dayframe.</h1>
 
         <div className="nav-links">
           <a href="#home">Home</a>
@@ -91,29 +135,98 @@ function App() {
           <a href="#friends">Friends</a>
         </div>
 
-        <button className="profile-button">
+        <button type="button" className="profile-button">
           My Profile
         </button>
-      </nav>
+      </header>
 
       {/* Main content */}
       <main className="main-container">
 
-        {/* Feed */}
+        {/* Photo feed */}
         <section className="feed" id="home">
 
           <div className="welcome">
             <h1>Your day, one frame at a time.</h1>
+
             <p>
               A little snapshot of life, shared with the people
               who matter.
             </p>
           </div>
 
+          {/* Interactive map */}
+          <div
+            id="explore"
+            style={{
+              height: "350px",
+              width: "100%",
+              borderRadius: "12px",
+              overflow: "hidden",
+              marginBottom: "24px",
+              position: "relative",
+              zIndex: 1,
+            }}
+          >
+            <MapContainer
+              center={centerPosition}
+              zoom={7}
+              scrollWheelZoom={true}
+              style={{ height: "100%", width: "100%" }}
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+
+              {/* Sample friend locations */}
+              <Marker position={[40.7128, -74.006]}>
+                <Popup>
+                  <strong>Alex Morgan</strong>
+                  <br />
+                  📍 New York City
+                </Popup>
+              </Marker>
+
+              <Marker position={[40.0468, -76.3198]}>
+                <Popup>
+                  <strong>Jamie Lee</strong>
+                  <br />
+                  📍 Lancaster, PA
+                </Popup>
+              </Marker>
+
+              {/* Markers from uploaded posts */}
+              {posts
+                .filter((post) => post.coords)
+                .map((post) => (
+                  <Marker
+                    key={post.id}
+                    position={post.coords}
+                  >
+                    <Popup>
+                      <strong>{post.name}</strong>
+                      <br />
+                      📍 {post.location}
+
+                      {post.caption && (
+                        <>
+                          <br />
+                          <em>{post.caption}</em>
+                        </>
+                      )}
+                    </Popup>
+                  </Marker>
+                ))}
+            </MapContainer>
+          </div>
+
+          {/* Feed heading */}
           <div className="feed-header">
             <h2>Recent moments</h2>
 
             <button
+              type="button"
               className="share-button"
               onClick={() => setIsUploadOpen(true)}
             >
@@ -121,17 +234,9 @@ function App() {
             </button>
           </div>
 
-          {/* User-created posts */}
+          {/* Uploaded posts */}
           {posts.map((post) => (
             <article className="photo-card" key={post.id}>
-              <div className="photo-info">
-                <div className="avatar">Y</div>
-
-                <div>
-                  <strong>{post.name}</strong>
-                  <p>{post.time}</p>
-                </div>
-              </div>
 
               <img
                 src={post.image}
@@ -139,20 +244,34 @@ function App() {
                 className="posted-image"
               />
 
-              <div className="caption">
-                {post.caption && <p>{post.caption}</p>}
+              <div className="photo-info">
+                <div>
+                  <h3>{post.name}</h3>
 
-                {post.location && (
-                  <p className="location">
-                    📍 {post.location}
+                  <p>
+                    {post.location
+                      ? `📍 ${post.location}`
+                      : "Location not added"}
                   </p>
-                )}
+                </div>
+
+                <span className="time">
+                  {post.time}
+                </span>
               </div>
+
+              {post.caption && (
+                <p className="caption">
+                  {post.caption}
+                </p>
+              )}
+
             </article>
           ))}
 
           {/* Sample post 1 */}
           <article className="photo-card">
+
             <div className="photo-info">
               <div className="avatar">A</div>
 
@@ -166,15 +285,15 @@ function App() {
               <span>A sunny afternoon ☀️</span>
             </div>
 
-            <div className="caption">
-              <p>
-                Found a cute little coffee shop today.
-              </p>
-            </div>
+            <p className="caption">
+              A beautiful afternoon exploring the city.
+            </p>
+
           </article>
 
           {/* Sample post 2 */}
           <article className="photo-card">
+
             <div className="photo-info">
               <div className="avatar">J</div>
 
@@ -188,18 +307,20 @@ function App() {
               <span>Weekend adventures 🌿</span>
             </div>
 
-            <div className="caption">
-              <p>
-                Finally got outside for a hike!
-              </p>
-            </div>
+            <p className="caption">
+              Coffee, sunshine, and a slow morning.
+            </p>
+
           </article>
 
         </section>
 
         {/* Friends sidebar */}
         <aside className="sidebar" id="friends">
-          <h2>Your friends</h2>
+
+          <h3>Your friends</h3>
+
+          <p>Stay connected with your people.</p>
 
           {/* Add friend form */}
           <form
@@ -220,16 +341,21 @@ function App() {
 
           {/* Friends list */}
           <div className="friends-list">
+
             {friends.map((friend) => (
               <div className="friend" key={friend.id}>
-                <div className="avatar">
+
+                <span className="avatar">
                   {friend.name.charAt(0).toUpperCase()}
-                </div>
+                </span>
 
                 <span>{friend.name}</span>
+
               </div>
             ))}
+
           </div>
+
         </aside>
 
       </main>
@@ -237,6 +363,7 @@ function App() {
       {/* Upload modal */}
       {isUploadOpen && (
         <div className="modal-overlay">
+
           <div className="upload-modal">
 
             <button
@@ -250,11 +377,12 @@ function App() {
             <h2>Share a moment</h2>
 
             <p>
-              What's happening in your day?
+              Give your friends a little window into your day.
             </p>
 
             <form onSubmit={handlePost}>
-              <label>Choose a photo</label>
+
+              <label>Select a photo</label>
 
               <input
                 type="file"
@@ -284,6 +412,7 @@ function App() {
               >
                 Post moment
               </button>
+
             </form>
 
           </div>
