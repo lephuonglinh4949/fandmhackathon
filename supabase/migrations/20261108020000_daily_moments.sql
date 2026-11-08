@@ -7,10 +7,12 @@ create table if not exists public.daily_moment_claims (
 alter table public.daily_moment_claims enable row level security;
 revoke all on public.daily_moment_claims from public, anon, authenticated;
 
+delete from public.daily_moment_claims;
+
 insert into public.daily_moment_claims (user_id, photo_day)
-select user_id, (created_at at time zone 'UTC')::date
+select user_id, (created_at at time zone 'America/New_York')::date
 from public.moments
-group by user_id, (created_at at time zone 'UTC')::date
+group by user_id, (created_at at time zone 'America/New_York')::date
 on conflict (user_id, photo_day) do nothing;
 
 create or replace function public.create_daily_moment(
@@ -49,14 +51,14 @@ begin
     raise exception 'Choose a location for your photo.';
   end if;
 
-  v_photo_day := (now() at time zone 'UTC')::date;
+  v_photo_day := (now() at time zone 'America/New_York')::date;
 
   insert into public.daily_moment_claims (user_id, photo_day)
   values (signed_in_user_id, v_photo_day)
   on conflict (user_id, photo_day) do nothing;
 
   if not found then
-    raise exception 'You already shared a photo today. You can post again after midnight UTC.';
+    raise exception 'You already shared a photo today. You can post again after midnight Eastern Time.';
   end if;
 
   insert into public.moments (
@@ -95,11 +97,18 @@ create policy "Users can view their own and friends moments"
   on public.moments for select to authenticated
   using (
     created_at >= (
-      date_trunc('day', now() at time zone 'UTC') at time zone 'UTC'
+      date_trunc(
+        'day',
+        now() at time zone 'America/New_York'
+      ) at time zone 'America/New_York'
     )
     and created_at < (
-      (date_trunc('day', now() at time zone 'UTC') + interval '1 day')
-      at time zone 'UTC'
+      (
+        date_trunc(
+          'day',
+          now() at time zone 'America/New_York'
+        ) + interval '1 day'
+      ) at time zone 'America/New_York'
     )
     and (
       user_id = (select auth.uid())
@@ -125,11 +134,18 @@ create policy "Users can view their own and friends moment photos"
       from public.moments as moment
       where moment.storage_path = objects.name
         and moment.created_at >= (
-          date_trunc('day', now() at time zone 'UTC') at time zone 'UTC'
+          date_trunc(
+            'day',
+            now() at time zone 'America/New_York'
+          ) at time zone 'America/New_York'
         )
         and moment.created_at < (
-          (date_trunc('day', now() at time zone 'UTC') + interval '1 day')
-          at time zone 'UTC'
+          (
+            date_trunc(
+              'day',
+              now() at time zone 'America/New_York'
+            ) + interval '1 day'
+          ) at time zone 'America/New_York'
         )
         and (
           moment.user_id = (select auth.uid())

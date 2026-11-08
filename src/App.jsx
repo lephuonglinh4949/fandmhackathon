@@ -9,7 +9,12 @@ import {
 } from "react-leaflet";
 import { divIcon } from "leaflet";
 
-import { createMoment, fetchFriendConnections, fetchMoments } from "./lib/data";
+import {
+  createMoment,
+  fetchFriendConnections,
+  fetchMoments,
+  getEasternDayBounds,
+} from "./lib/data";
 import { isSupabaseConfigured, supabase } from "./lib/supabase";
 import "leaflet/dist/leaflet.css";
 import "./App.css";
@@ -368,16 +373,16 @@ function App() {
     }
 
     refreshUserData();
-    const now = new Date();
-    const nextUtcMidnight = Date.UTC(
-      now.getUTCFullYear(),
-      now.getUTCMonth(),
-      now.getUTCDate() + 1
-    );
-    const midnightRefresh = window.setTimeout(
-      refreshUserData,
-      nextUtcMidnight - Date.now()
-    );
+    let midnightRefresh;
+    function scheduleMidnightRefresh() {
+      const { end } = getEasternDayBounds();
+      midnightRefresh = window.setTimeout(() => {
+        if (!active) return;
+        refreshUserData();
+        scheduleMidnightRefresh();
+      }, end.getTime() - Date.now() + 100);
+    }
+    scheduleMidnightRefresh();
     const channel = supabase
       .channel(`social-updates-${userId}`)
       .on(
@@ -592,7 +597,7 @@ function App() {
               <div>
                 <h2>Today's moments</h2>
                 <p className="daily-limit-note">
-                  One photo per person each day · Resets at midnight UTC
+                  One photo per person each day · Resets at midnight Eastern Time
                 </p>
               </div>
               <button

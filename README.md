@@ -11,7 +11,7 @@ Elsewhere is a React and Vite photo-sharing app with email/password accounts, fr
 5. In Supabase Authentication settings, enable email/password sign-in and configure the site URL and allowed redirect URLs for the local and deployed app.
 6. Run `npm run dev`.
 
-The migrations create the social tables, Row Level Security policies, private `moments` image bucket, email-based friend-request functions, and connected-profile lookup. Apply every migration, including `20261108020000_daily_moments.sql`, to enable the daily photo limit. A user can share one photo per UTC calendar day; today's photos leave the feed and map at midnight UTC. Friend requests only reveal the email addresses of people in an existing pending or accepted connection; there is no public account directory.
+The migrations create the social tables, Row Level Security policies, private `moments` image bucket, email-based friend-request functions, and connected-profile lookup. Apply every migration, including `20261108020000_daily_moments.sql`, to enable the daily photo limit. A user can share one photo per Eastern Time calendar day; today's photos leave the feed and map at midnight Eastern Time. The reset follows daylight saving time (EST/EDT). Friend requests only reveal the email addresses of people in an existing pending or accepted connection; there is no public account directory.
 
 Only the Supabase project URL and publishable/anon key belong in the Vite environment. Never put a Supabase service-role key in this frontend.
 

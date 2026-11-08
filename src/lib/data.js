@@ -1,6 +1,17 @@
 import { supabase } from "./supabase";
 
 const MOMENTS_BUCKET = "moments";
+const EASTERN_TIME_ZONE = "America/New_York";
+const easternDateFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: EASTERN_TIME_ZONE,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hourCycle: "h23",
+});
 
 async function fetchConnectedProfiles() {
   const { data: profiles, error } = await supabase.rpc("get_connected_profiles");
@@ -20,20 +31,52 @@ function formatTime(createdAt) {
   return `${days} day${days === 1 ? "" : "s"} ago`;
 }
 
-function getUtcDayBounds() {
-  const now = new Date();
+function getEasternDateParts(date) {
+  return Object.fromEntries(
+    easternDateFormatter
+      .formatToParts(date)
+      .filter((part) => part.type !== "literal")
+      .map(({ type, value }) => [type, Number(value)])
+  );
+}
+
+function getEasternMidnight({ year, month, day }) {
+  const desiredUtcTime = Date.UTC(year, month - 1, day);
+  let timestamp = desiredUtcTime;
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const parts = getEasternDateParts(new Date(timestamp));
+    const representedUtcTime = Date.UTC(
+      parts.year,
+      parts.month - 1,
+      parts.day,
+      parts.hour,
+      parts.minute,
+      parts.second
+    );
+    timestamp += desiredUtcTime - representedUtcTime;
+  }
+
+  return new Date(timestamp);
+}
+
+export function getEasternDayBounds() {
+  const today = getEasternDateParts(new Date());
+  const tomorrow = new Date(Date.UTC(today.year, today.month - 1, today.day + 1));
+  const tomorrowParts = {
+    year: tomorrow.getUTCFullYear(),
+    month: tomorrow.getUTCMonth() + 1,
+    day: tomorrow.getUTCDate(),
+  };
+
   return {
-    start: new Date(
-      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
-    ),
-    end: new Date(
-      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1)
-    ),
+    start: getEasternMidnight(today),
+    end: getEasternMidnight(tomorrowParts),
   };
 }
 
 export async function fetchMoments(userId) {
-  const { start, end } = getUtcDayBounds();
+  const { start, end } = getEasternDayBounds();
   const { data: moments, error } = await supabase
     .from("moments")
     .select("id, user_id, storage_path, caption, location, latitude, longitude, created_at")
