@@ -1,21 +1,21 @@
-<<<<<<< HEAD
-# React + Vite
+# Dayframe
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Dayframe is a React and Vite photo-sharing app with email/password accounts, friend requests, shared photo feeds, and location markers.
 
-Currently, two official plugins are available:
+## Run locally
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+1. Install dependencies with `npm install`.
+2. Create a Supabase project.
+3. Copy `.env.example` to `.env.local` and set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` from the Supabase project's API settings. The legacy anon key is also accepted as `VITE_SUPABASE_ANON_KEY`.
+4. Apply `supabase/migrations/20261108000000_social_photo_sharing.sql` to the project in the Supabase SQL Editor, or with the Supabase CLI after linking the project.
+5. In Supabase Authentication settings, enable email/password sign-in and configure the site URL and allowed redirect URLs for the local and deployed app.
+6. Run `npm run dev`.
 
-## React Compiler
+The migration creates the social tables, Row Level Security policies, private `moments` image bucket, email-based friend-request functions, and Realtime publication entries. Friend requests only reveal the email addresses of people in an existing pending or accepted connection; there is no public account directory.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Only the Supabase project URL and publishable/anon key belong in the Vite environment. Never put a Supabase service-role key in this frontend.
 
-## Expanding the Oxlint configuration
+## Checks
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
-=======
-# fandmhackathon
-Fandm Hackathon 2026
->>>>>>> 4dfe19ca2e83ba64eb44a217ba179c593d549506
+- `npm run lint`
+- `npm run build`
