@@ -190,7 +190,7 @@ function AuthScreen() {
     <main className="auth-page">
       <section className="auth-card">
         <a className="logo" href="#home">
-          dayframe.
+          Elsewhere
         </a>
         <h1>{isSignUp ? "Create your account" : "Welcome back"}</h1>
         <p>
@@ -241,7 +241,7 @@ function AuthScreen() {
         >
           {isSignUp
             ? "Already have an account? Sign in"
-            : "New to dayframe? Create an account"}
+            : "New to Elsewhere? Create an account"}
         </button>
       </section>
     </main>
@@ -253,7 +253,7 @@ function SupabaseSetupMessage() {
     <main className="auth-page">
       <section className="auth-card">
         <a className="logo" href="#home">
-          dayframe.
+          Elsewhere
         </a>
         <h1>Connect your Supabase project</h1>
         <p>
@@ -277,6 +277,7 @@ function App() {
   const [postError, setPostError] = useState("");
   const [isSubmittingPost, setIsSubmittingPost] = useState(false);
   const [posts, setPosts] = useState([]);
+  const hasPostedToday = posts.some((post) => post.name === "You");
   const [postsLoading, setPostsLoading] = useState(true);
   const [friends, setFriends] = useState([]);
   const [incomingRequests, setIncomingRequests] = useState([]);
@@ -367,6 +368,16 @@ function App() {
     }
 
     refreshUserData();
+    const now = new Date();
+    const nextUtcMidnight = Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate() + 1
+    );
+    const midnightRefresh = window.setTimeout(
+      refreshUserData,
+      nextUtcMidnight - Date.now()
+    );
     const channel = supabase
       .channel(`social-updates-${userId}`)
       .on(
@@ -383,6 +394,7 @@ function App() {
 
     return () => {
       active = false;
+      window.clearTimeout(midnightRefresh);
       supabase.removeChannel(channel);
     };
   }, [sessionUserId]);
@@ -537,8 +549,8 @@ function App() {
   return (
     <div className="website">
       <header className="navbar">
-        <a className="logo" href="#home" aria-label="dayframe home">
-          dayframe.
+        <a className="logo" href="#home" aria-label="Elsewhere home">
+          Elsewhere
         </a>
         <nav className="nav-links" aria-label="Main navigation">
           {[
@@ -577,17 +589,27 @@ function App() {
             </div>
 
             <div className="feed-header">
-              <h2>Recent moments</h2>
+              <div>
+                <h2>Today's moments</h2>
+                <p className="daily-limit-note">
+                  One photo per person each day · Resets at midnight UTC
+                </p>
+              </div>
               <button
                 type="button"
                 className="share-button"
+                disabled={postsLoading || hasPostedToday}
                 onClick={() => {
                   setSelectedCoords(null);
                   setPostError("");
                   setIsUploadOpen(true);
                 }}
               >
-                + Share a moment
+                {postsLoading
+                  ? "Loading..."
+                  : hasPostedToday
+                    ? "You've posted today"
+                    : "+ Share a moment"}
               </button>
             </div>
 

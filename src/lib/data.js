@@ -20,22 +20,41 @@ function formatTime(createdAt) {
   return `${days} day${days === 1 ? "" : "s"} ago`;
 }
 
+function getUtcDayBounds() {
+  const now = new Date();
+  return {
+    start: new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+    ),
+    end: new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1)
+    ),
+  };
+}
+
 export async function fetchMoments(userId) {
+  const { start, end } = getUtcDayBounds();
   const { data: moments, error } = await supabase
     .from("moments")
     .select("id, user_id, storage_path, caption, location, latitude, longitude, created_at")
+    .gte("created_at", start.toISOString())
+    .lt("created_at", end.toISOString())
     .order("created_at", { ascending: false });
   if (error) throw error;
 
   if (moments.length === 0) return [];
 
   const emails = await fetchConnectedProfiles();
+  const expiresIn = Math.max(
+    1,
+    Math.floor((end.getTime() - Date.now()) / 1000)
+  );
 
   return Promise.all(
     moments.map(async (moment) => {
       const { data, error: imageError } = await supabase.storage
         .from(MOMENTS_BUCKET)
-        .createSignedUrl(moment.storage_path, 3600);
+        .createSignedUrl(moment.storage_path, expiresIn);
       if (imageError) throw imageError;
 
       return {
@@ -102,13 +121,12 @@ export async function createMoment(userId, photo, { caption, location, coords })
     });
   if (uploadError) throw uploadError;
 
-  const { error: insertError } = await supabase.from("moments").insert({
-    user_id: userId,
-    storage_path: storagePath,
-    caption,
-    location,
-    latitude: coords[0],
-    longitude: coords[1],
+  const { error: insertError } = await supabase.rpc("create_daily_moment", {
+    photo_storage_path: storagePath,
+    photo_caption: caption,
+    photo_location: location,
+    photo_latitude: coords[0],
+    photo_longitude: coords[1],
   });
 
   if (insertError) {

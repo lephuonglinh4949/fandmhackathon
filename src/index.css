@@ -306,6 +306,12 @@ button {
   width: 100%;
 }
 
+.daily-limit-note {
+  margin: 4px 0 0;
+  color: #777;
+  font-size: 13px;
+}
+
 .empty-feed {
   padding: 32px 20px;
   border: 1px dashed #d8d4cd;
