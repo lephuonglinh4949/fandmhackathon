@@ -11,6 +11,7 @@ body {
   color: #292929;
 }
 
+/* Navigation */
 .navbar {
   height: 75px;
   padding: 0 8%;
@@ -27,7 +28,7 @@ body {
   letter-spacing: -1px;
 }
 
-.navbar nav {
+.nav-links {
   display: flex;
   gap: 35px;
 }
@@ -51,6 +52,7 @@ button {
   color: #333;
 }
 
+/* Main layout */
 .main-container {
   max-width: 1150px;
   margin: 45px auto;
@@ -64,19 +66,12 @@ button {
   margin-bottom: 40px;
 }
 
-.date {
-  font-size: 11px;
-  letter-spacing: 2px;
-  color: #999;
-  margin-bottom: 12px;
-}
-
-.welcome h2 {
+.welcome h1 {
   font-size: 30px;
   margin-bottom: 12px;
 }
 
-.welcome p:last-child {
+.welcome p {
   color: #777;
 }
 
@@ -96,6 +91,7 @@ button {
   color: white;
 }
 
+/* Photo cards */
 .photo-card {
   background: white;
   border-radius: 14px;
@@ -124,17 +120,12 @@ button {
 
 .photo-info {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
   margin-top: 17px;
 }
 
-.photo-info h3 {
-  font-size: 15px;
-  margin-bottom: 6px;
-}
-
-.photo-info p,
-.time {
+.photo-info p {
   font-size: 12px;
   color: #888;
 }
@@ -144,6 +135,15 @@ button {
   font-size: 14px;
 }
 
+.posted-image {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+}
+
+/* Friends sidebar */
 .sidebar {
   background: white;
   border: 1px solid #eeeeee;
@@ -152,14 +152,8 @@ button {
   height: fit-content;
 }
 
-.sidebar h3 {
+.sidebar h2 {
   margin-bottom: 8px;
-}
-
-.sidebar > p {
-  color: #888;
-  font-size: 13px;
-  margin-bottom: 25px;
 }
 
 .friend {
@@ -179,37 +173,34 @@ button {
   justify-content: center;
   align-items: center;
   font-weight: bold;
+  flex-shrink: 0;
 }
 
-@media (max-width: 750px) {
-  .main-container {
-    grid-template-columns: 1fr;
-  }
+/* Add friend */
+.add-friend {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0;
+}
 
-  .sidebar {
-    display: none;
-  }
+.add-friend input {
+  min-width: 0;
+  width: 100%;
+  padding: 9px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font: inherit;
+}
 
-  .navbar {
-    padding: 0 20px;
-  }
+.add-friend button {
+  padding: 9px 12px;
+  background: #283b2d;
+  color: white;
+  white-space: nowrap;
+}
 
-  .navbar nav {
-    gap: 12px;
-  }
-
-  .navbar a {
-    font-size: 12px;
-  }
-
-  .profile-button {
-    display: none;
-  }
-
-  .welcome h2 {
-    font-size: 24px;
-  }
-  .modal-overlay {
+/* Upload modal */
+.modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
@@ -263,11 +254,29 @@ button {
   background: transparent;
 }
 
-.posted-image {
-  width: 100%;
-  height: 350px;
-  object-fit: cover;
-  border-radius: 10px;
-  display: block;
-}
+/* Mobile layout */
+@media (max-width: 750px) {
+  .main-container {
+    grid-template-columns: 1fr;
+  }
+
+  .navbar {
+    padding: 0 20px;
+  }
+
+  .nav-links {
+    gap: 12px;
+  }
+
+  .navbar a {
+    font-size: 12px;
+  }
+
+  .profile-button {
+    display: none;
+  }
+
+  .welcome h1 {
+    font-size: 24px;
+  }
 }

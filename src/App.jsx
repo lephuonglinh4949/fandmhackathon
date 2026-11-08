@@ -2,10 +2,20 @@
 import { useState } from "react";
 
 function App() {
+  // Upload modal
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+
+  // Posts
   const [posts, setPosts] = useState([]);
 
-  // Handle photo submission
+  // Friends
+  const [friends, setFriends] = useState([
+    { id: 1, name: "Alex Morgan" },
+    { id: 2, name: "Jamie Lee" },
+    { id: 3, name: "Sam Rivera" },
+  ]);
+
+  // Add a new post
   function handlePost(event) {
     event.preventDefault();
 
@@ -16,62 +26,92 @@ function App() {
     const caption = formData.get("caption");
     const location = formData.get("location");
 
-    // Make sure a photo was selected
     if (!photo || photo.size === 0) {
       alert("Please select a photo!");
       return;
     }
 
-    // Create a new post
     const newPost = {
       id: Date.now(),
       image: URL.createObjectURL(photo),
       caption: caption,
       location: location,
       name: "You",
-      time: "Just now"
+      time: "Just now",
     };
 
-    // Add the new post to the beginning of the feed
-    setPosts(currentPosts => [newPost, ...currentPosts]);
+    setPosts((currentPosts) => [newPost, ...currentPosts]);
 
-    // Close and reset the form
     form.reset();
     setIsUploadOpen(false);
+  }
+
+  // Add a friend
+  function handleAddFriend(event) {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const name = formData.get("friendName").trim();
+
+    if (name === "") return;
+
+    const alreadyExists = friends.some(
+      (friend) => friend.name.toLowerCase() === name.toLowerCase()
+    );
+
+    if (alreadyExists) {
+      alert("This friend is already on your list!");
+      return;
+    }
+
+    const newFriend = {
+      id: Date.now(),
+      name: name,
+    };
+
+    setFriends((currentFriends) => [
+      ...currentFriends,
+      newFriend,
+    ]);
+
+    form.reset();
   }
 
   return (
     <div className="website">
 
-      {/* Navigation bar */}
-      <header className="navbar">
-        <h1 className="logo">dayframe.</h1>
+      {/* Navigation */}
+      <nav className="navbar">
+        <div className="logo">dayframe.</div>
 
-        <nav>
-          <a href="#">Home</a>
-          <a href="#">Explore</a>
-          <a href="#">Friends</a>
-        </nav>
+        <div className="nav-links">
+          <a href="#home">Home</a>
+          <a href="#explore">Explore</a>
+          <a href="#friends">Friends</a>
+        </div>
 
         <button className="profile-button">
           My Profile
         </button>
-      </header>
+      </nav>
 
       {/* Main content */}
       <main className="main-container">
 
-        {/* Photo feed */}
-        <section className="feed">
+        {/* Feed */}
+        <section className="feed" id="home">
 
           <div className="welcome">
-            <p className="date">YOUR DAILY MOMENTS</p>
-            <h2>A little window into everyone's day.</h2>
-            <p>See what your friends are up to today.</p>
+            <h1>Your day, one frame at a time.</h1>
+            <p>
+              A little snapshot of life, shared with the people
+              who matter.
+            </p>
           </div>
 
           <div className="feed-header">
-            <h2>Today's moments</h2>
+            <h2>Recent moments</h2>
 
             <button
               className="share-button"
@@ -81,106 +121,115 @@ function App() {
             </button>
           </div>
 
-          {/* User-uploaded posts */}
-          {posts.map(post => (
+          {/* User-created posts */}
+          {posts.map((post) => (
             <article className="photo-card" key={post.id}>
+              <div className="photo-info">
+                <div className="avatar">Y</div>
+
+                <div>
+                  <strong>{post.name}</strong>
+                  <p>{post.time}</p>
+                </div>
+              </div>
 
               <img
                 src={post.image}
-                alt="Your daily moment"
+                alt="Your uploaded moment"
                 className="posted-image"
               />
 
-              <div className="photo-info">
-                <div>
-                  <h3>{post.name}</h3>
+              <div className="caption">
+                {post.caption && <p>{post.caption}</p>}
 
-                  <p>
-                    {post.location
-                      ? `📍 ${post.location}`
-                      : "Location not added"}
+                {post.location && (
+                  <p className="location">
+                    📍 {post.location}
                   </p>
-                </div>
-
-                <span className="time">
-                  {post.time}
-                </span>
+                )}
               </div>
-
-              <p className="caption">
-                {post.caption}
-              </p>
-
             </article>
           ))}
 
-          {/* Example friend post 1 */}
+          {/* Sample post 1 */}
           <article className="photo-card">
+            <div className="photo-info">
+              <div className="avatar">A</div>
+
+              <div>
+                <strong>Alex Morgan</strong>
+                <p>2 hours ago</p>
+              </div>
+            </div>
 
             <div className="photo-placeholder photo-one">
-              <span>Your photo goes here</span>
+              <span>A sunny afternoon ☀️</span>
             </div>
 
-            <div className="photo-info">
-              <div>
-                <h3>Alex Morgan</h3>
-                <p>📍 New York City</p>
-              </div>
-
-              <span className="time">2 hours ago</span>
+            <div className="caption">
+              <p>
+                Found a cute little coffee shop today.
+              </p>
             </div>
-
-            <p className="caption">
-              A beautiful afternoon exploring the city.
-            </p>
-
           </article>
 
-          {/* Example friend post 2 */}
+          {/* Sample post 2 */}
           <article className="photo-card">
+            <div className="photo-info">
+              <div className="avatar">J</div>
+
+              <div>
+                <strong>Jamie Lee</strong>
+                <p>Yesterday</p>
+              </div>
+            </div>
 
             <div className="photo-placeholder photo-two">
-              <span>Your photo goes here</span>
+              <span>Weekend adventures 🌿</span>
             </div>
 
-            <div className="photo-info">
-              <div>
-                <h3>Jamie Lee</h3>
-                <p>📍 Lancaster, PA</p>
-              </div>
-
-              <span className="time">4 hours ago</span>
+            <div className="caption">
+              <p>
+                Finally got outside for a hike!
+              </p>
             </div>
-
-            <p className="caption">
-              Coffee, sunshine, and a slow morning.
-            </p>
-
           </article>
 
         </section>
 
         {/* Friends sidebar */}
-        <aside className="sidebar">
+        <aside className="sidebar" id="friends">
+          <h2>Your friends</h2>
 
-          <h3>Your friends</h3>
-          <p>Stay connected with your people.</p>
+          {/* Add friend form */}
+          <form
+            className="add-friend"
+            onSubmit={handleAddFriend}
+          >
+            <input
+              type="text"
+              name="friendName"
+              placeholder="Enter a friend's name"
+              required
+            />
 
-          <div className="friend">
-            <span className="avatar">A</span>
-            <span>Alex Morgan</span>
+            <button type="submit">
+              Add
+            </button>
+          </form>
+
+          {/* Friends list */}
+          <div className="friends-list">
+            {friends.map((friend) => (
+              <div className="friend" key={friend.id}>
+                <div className="avatar">
+                  {friend.name.charAt(0).toUpperCase()}
+                </div>
+
+                <span>{friend.name}</span>
+              </div>
+            ))}
           </div>
-
-          <div className="friend">
-            <span className="avatar">J</span>
-            <span>Jamie Lee</span>
-          </div>
-
-          <div className="friend">
-            <span className="avatar">S</span>
-            <span>Sam Wilson</span>
-          </div>
-
         </aside>
 
       </main>
@@ -188,7 +237,6 @@ function App() {
       {/* Upload modal */}
       {isUploadOpen && (
         <div className="modal-overlay">
-
           <div className="upload-modal">
 
             <button
@@ -196,18 +244,17 @@ function App() {
               onClick={() => setIsUploadOpen(false)}
               type="button"
             >
-              ✕
+              ×
             </button>
 
             <h2>Share a moment</h2>
 
             <p>
-              Give your friends a little window into your day.
+              What's happening in your day?
             </p>
 
             <form onSubmit={handlePost}>
-
-              <label>Select a photo</label>
+              <label>Choose a photo</label>
 
               <input
                 type="file"
@@ -220,10 +267,10 @@ function App() {
 
               <textarea
                 name="caption"
-                placeholder="What is happening today?"
+                placeholder="Write something about your moment..."
               />
 
-              <label>Location (optional)</label>
+              <label>Location</label>
 
               <input
                 type="text"
@@ -237,7 +284,6 @@ function App() {
               >
                 Post moment
               </button>
-
             </form>
 
           </div>
